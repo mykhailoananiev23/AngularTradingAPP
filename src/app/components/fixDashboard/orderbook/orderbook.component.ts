@@ -26,7 +26,7 @@ export class OrderbookComponent {
     private lss: LocalStorageService
   ) {
     this.isLoading = true;
-    this.selAcc = '';
+    this.selAcc = this.lss.get('selTrdAcc');
     var openOrdersOnly = this.lss.get('trdOrdOpen')
     if(openOrdersOnly == null){
       this.openOrdersOnly = false;
@@ -36,13 +36,29 @@ export class OrderbookComponent {
   }
 
   ngOnInit(){
-    this.apiService.orders(this.selAcc?.accountNo || 'accoundId').subscribe(
+    this.apiService.orders(this.selAcc).subscribe(
       (res: any) => {
         this.oldOrderbook = res;
         if(this.openOrdersOnly){
           this.orderbook = res.filter(function (ele:any) {
-            console.log(ele.orderStatus)
-            console.log(ele.orderStatus !== 'Expired')
+            return ((ele.orderStatus !== 'Expired') && (ele.orderStatus !== 'Cancelled') && (ele.orderStatus !== 'Rejected'));
+          })
+        } else {
+          this.orderbook = res;
+        }
+        this.isLoading = false;
+      }
+    )
+  }
+
+  ngOnChanges(){
+    this.orderbook = [];
+    this.isLoading = true;
+    this.apiService.orders(this.selAcc).subscribe(
+      (res: any) => {
+        this.oldOrderbook = res;
+        if(this.openOrdersOnly){
+          this.orderbook = res.filter(function (ele:any) {
             return ((ele.orderStatus !== 'Expired') && (ele.orderStatus !== 'Cancelled') && (ele.orderStatus !== 'Rejected'));
           })
         } else {

@@ -1751,7 +1751,7 @@ export class NTVoyagerApiWtp {
       throw new Error("The parameter 'accountId' must be defined.");
     url_ = url_.replace('{accountId}', encodeURIComponent('' + accountId));
     url_ = url_.replace(/[?&]$/, '');
-
+    console.log(accountId)
     let options_: any = {
       observe: 'response',
       responseType: 'blob',

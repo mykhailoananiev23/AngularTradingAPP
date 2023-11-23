@@ -2,8 +2,6 @@ import {ConsoleLogLevel, ConsoleLoggerProvider, LightstreamerClient, StatusWidge
 
 declare var $:any;
 
-LightstreamerClient.setLoggerProvider(new ConsoleLoggerProvider(ConsoleLogLevel.WARN));
-
 export const lsClient = new LightstreamerClient("http://20.90.66.153:8080","NUTCRACKER");
 lsClient.addListener({
   onStatusChange: function(newStatus) {

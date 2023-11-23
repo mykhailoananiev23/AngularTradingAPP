@@ -11,7 +11,6 @@ import { DeleteWatchlistComponent } from '../../templates/delete-watchlist/delet
 import { InstrumentSearchComponent } from '../../templates/instrument-search/instrument-search.component';
 import { UpdateMarketData } from 'src/app/reducers/market/market.action';
 import { getMarketData } from 'src/app/reducers/market/market.selector';
-import { LstreamerService } from 'src/app/services/lstreamer.service';
 import { ItemUpdate, LightstreamerClient, Subscription } from 'lightstreamer-client-web/lightstreamer.esm';
 import { lsClient } from 'src/app/services/lightstreamer/lsClient';
 
@@ -38,7 +37,6 @@ export class WatchlistComponent {
     private notif: ToastrService,
     private store: Store,
     private modalService: NgbModal,
-    private lsService: LstreamerService
   ) {
     this.symbol = '';
     this.watchlists = this.lss.get<WatchlistDTO[]>('watchlists');
@@ -157,7 +155,6 @@ export class WatchlistComponent {
             this.lss.set('subWlList', subTemp)
             this.lss.set('instruments', temp);
             this.instruments = temp;
-            this.lsService.subscribeWatchlists(this.instruments)
           }
         },
         (err) => [console.log(err)]
@@ -315,14 +312,14 @@ function instrument(pesk: string, symbol: string, name: string) {
     BP1: '0',
     AP1: '0',
     AS1: '0',
-    // BS2: '0',
-    // B2: '0',
-    // A2: '0',
-    // AS2: '0',
-    // BS3: '0',
-    // B3: '0',
-    // A3: '0',
-    // AS3: '0',
+    BS2: '0',
+    B2: '0',
+    A2: '0',
+    AS2: '0',
+    BS3: '0',
+    B3: '0',
+    A3: '0',
+    AS3: '0',
     LTP: '0',
     LTS: '0',
     LTT: '00:00:00',

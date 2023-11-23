@@ -23,9 +23,10 @@ export class TradingAccountComponent {
     this.apiService.tradingAccounts().subscribe(
       (res: any) => {
         this.tradingAccounts = res;
-        var oldSelTradingAccount = this.lss.get('selTrdAcc');
-        if(oldSelTradingAccount == null) {
-          this.selectedTradingAccount = res[0]
+        var oldSelTradingAccount: any = this.lss.get('selTrdAcc');
+        if((oldSelTradingAccount === null) || (oldSelTradingAccount === 'undefined')) {
+          this.selectedTradingAccount = res[0].accountNo;
+          this.lss.set('selTrdAcc', this.selectedTradingAccount)
         } else {
           this.selectedTradingAccount = oldSelTradingAccount
         }
@@ -42,6 +43,7 @@ export class TradingAccountComponent {
     this.apiService.tradingAccounts().subscribe(
       (res: any) => {
         this.tradingAccounts = res;
+        console.log(res)
         var oldSelTradingAccount = this.lss.get('selTrdAcc');
         if(oldSelTradingAccount == null) {
           this.selectedTradingAccount = res[0]

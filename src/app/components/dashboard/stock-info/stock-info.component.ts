@@ -5,6 +5,8 @@ import { InstrumentSearchComponent } from '../../templates/instrument-search/ins
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Store } from '@ngrx/store';
 import { getMarketData } from 'src/app/reducers/market/market.selector';
+import { LstreamerService } from 'src/app/services/lightstreamer/lstreamer.service';
+import { ItemUpdate } from 'lightstreamer-client-web/lightstreamer.esm';
 
 @Component({
   selector: 'app-stock-info',
@@ -19,9 +21,28 @@ export class StockInfoComponent {
     private apiservice: NTVoyagerApiWtp,
     private lss: LocalStorageService,
     private modalService: NgbModal,
-    private store: Store
+    private store: Store,
+    private lsService: LstreamerService
   ) {
     this.symbol = this.lss.get('siSymbol');
+    this.lsService.subscribeStockInfo(this);
+  }
+
+  onItemUpdate(update: ItemUpdate, obj: any){
+    console.log(update)
+    var itemPos = update.getItemPos();
+    function getStockItem(update: ItemUpdate, instrument: any){
+      for (var f of obj.field) {
+        var val: string = update.getValue(f);
+        if((val !== ' ') && (val !== null) && parseFloat(val)){
+          if(f == 'B1'){
+            console.log(val)
+          }
+          instrument[f] = val;
+        }
+      }
+    }
+    getStockItem(update, obj.stackInfo[itemPos-1]);
   }
 
   ngOnInit() {
@@ -34,6 +55,7 @@ export class StockInfoComponent {
         this.lss.set('stockInfo', stockInfo);
         this.stockInfo = stockInfo;
         this.symbol = siSymbol;
+        this.lsService.subscribeStockInfo(this);
       }
     )
     if (this.lss.get('stockInfo') === null || this.stockInfo === undefined) {
@@ -176,54 +198,54 @@ function instrument(pesk: any, symbol: any, name: any) {
     Name: name,
 
     //Depth
-    BS1: '',
-    B1: '',
-    A1: '',
-    AS1: '',
-    BS2: '',
-    B2: '',
-    A2: '',
-    AS2: '',
-    BS3: '',
-    B3: '',
-    A3: '',
-    AS3: '',
+    BS1: '0',
+    B1: '0',
+    A1: '0',
+    AS1: '0',
+    BS2: '0',
+    B2: '0',
+    A2: '0',
+    AS2: '0',
+    BS3: '0',
+    B3: '0',
+    A3: '0',
+    AS3: '0',
 
     // Last 5 Trades
-    LTP1: '',
-    LTS1: '',
-    LTT1: '',
-    Chg1: '',
-    LTP2: '',
-    LTS2: '',
-    LTT2: '',
-    Chg2: '',
-    LTP3: '',
-    LTS3: '',
-    LTT3: '',
-    Chg3: '',
-    LTP4: '',
-    LTS4: '',
-    LTT4: '',
-    Chg4: '',
-    LTP5: '',
-    LTS5: '',
-    LTT5: '',
-    Chg5: '',
+    LTP1: '0',
+    LTS1: '0',
+    LTT1: '0',
+    Chg1: '0',
+    LTP2: '0',
+    LTS2: '0',
+    LTT2: '0',
+    Chg2: '0',
+    LTP3: '0',
+    LTS3: '0',
+    LTT3: '0',
+    Chg3: '0',
+    LTP4: '0',
+    LTS4: '0',
+    LTT4: '0',
+    Chg4: '0',
+    LTP5: '0',
+    LTS5: '0',
+    LTT5: '0',
+    Chg5: '0',
 
-    Chg: '',
-    ChgP: '',
-    Cls: '',
-    L: '',
-    H: '',
-    TVol: '',
-    TVal: '',
-    NTrd: '',
-    St: '',
+    Chg: '0',
+    ChgP: '0',
+    Cls: '0',
+    L: '0',
+    H: '0',
+    TVol: '0',
+    TVal: '0',
+    NTrd: '0',
+    St: '0',
 
     //chgColour is used for changing the row's css class
     //('warning', 'danger', 'success') - (yellow, red, green)
-    chgColour: '',
+    chgColour: 'warning',
   };
 
   return res;

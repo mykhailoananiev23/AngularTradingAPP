@@ -34,10 +34,20 @@ export class FixdashboardComponent {
     }
     this.updateDate = new Date()
     this.positionSummany = null;
+    var selAcc = this.lss.get('selTrdAcc') as string;
+    if(selAcc === 'null' || selAcc === 'undefined'){
+      this.apiService.tradingAccounts().subscribe(
+        (res: any) =>{
+          this.selAcc = res[0].accountNo
+        }
+      )
+    } else {
+      this.selAcc = selAcc;
+    }
   }
 
   ngOnInit(){
-    this.apiService.positionSummary('test').subscribe(
+    this.apiService.positionSummary(this.selAcc).subscribe(
       (res) => {
         this.positionSummany = res;
       }
@@ -45,6 +55,13 @@ export class FixdashboardComponent {
   }
 
   ngOnChanges(){
+    console.log(this.selAcc)
+    this.apiService.positionSummary(this.selAcc).subscribe(
+      (res) => {
+        this.positionSummany = res;
+        console.log(res)
+      }
+    )
     var isCollapse: any = this.lss.get('trdPosCollapse') as any;
     if(isCollapse == null ){
       this.isCollapse = true;
@@ -66,5 +83,10 @@ export class FixdashboardComponent {
 
   receiveSelAcc(data: string) {
     this.selAcc = data;
+    this.apiService.positionSummary(this.selAcc).subscribe(
+      (res) => {
+        this.positionSummany = res;
+      }
+    )
   }
 }

@@ -8,7 +8,7 @@ import { InstrumentSearchComponent } from '../../templates/instrument-search/ins
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { UpdateMarketData } from 'src/app/reducers/market/market.action';
 import { getMarketData } from 'src/app/reducers/market/market.selector';
-import { LstreamerService } from 'src/app/services/lstreamer.service';
+import { LstreamerService } from 'src/app/services/lightstreamer/lstreamer.service';
 
 @Component({
   selector: 'app-indices',

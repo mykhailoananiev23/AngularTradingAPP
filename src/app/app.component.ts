@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
 import { NavbarComponent } from './components/includes/navbar/navbar.component';
+import { LightstreamerClient } from 'lightstreamer-client-web/lightstreamer.esm';
+import { LstreamerService } from './services/lightstreamer/lstreamer.service';
 
 @Component({
   selector: 'app-root',
@@ -8,4 +10,13 @@ import { NavbarComponent } from './components/includes/navbar/navbar.component';
 })
 export class AppComponent {
   title = 'nutrade';
+  constructor(
+    private lsService: LstreamerService
+  ) {
+    this.lsService.client.connect();
+  }
+    
+  ngOnInit(){
+    this.lsService.client.connect();
+  }
 }

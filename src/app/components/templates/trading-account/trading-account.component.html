@@ -3,8 +3,8 @@
     <select class="form-control" [(ngModel)]="selectedTradingAccount" (ngModelChange)="handleTradingAccountChanged()">
       <!-- <ng-container *ngFor="let ta of tradingAccounts ">
         <optgroup [label]="ta.fixSession"> -->
-          <option *ngFor="let account of tradingAccounts" [value]="account.accountId">
-            {{ account.account }} ({{ account.name }})
+          <option *ngFor="let account of tradingAccounts" [value]="account.accountNo">
+            {{ account.name }} ({{ account.accountNo }})
           </option>
         <!-- </optgroup>
       </ng-container> -->

@@ -6,6 +6,8 @@ import * as fromAuthSelector from '../../../reducers/auth/auth.selectors';
 import * as fromAuth from '../../../reducers/auth/auth.action'
 import { LocalStorageService } from 'ngx-localstorage';
 import { NTVoyagerApiWtp } from 'src/app/services/api.service';
+import { LstreamerService } from 'src/app/services/lightstreamer/lstreamer.service';
+import { getFeedStatus } from 'src/app/reducers/feed/feed.selector';
 
 @Component({
   selector: 'app-navbar',
@@ -14,12 +16,14 @@ import { NTVoyagerApiWtp } from 'src/app/services/api.service';
 })
 export class NavbarComponent {
   isAuth: any;
+  isfeed: any;
 
   constructor(
     private router: Router,
     private store: Store,
     private lss: LocalStorageService,
-    private apiService: NTVoyagerApiWtp
+    private apiService: NTVoyagerApiWtp,
+    private lsService: LstreamerService
   ) {
     this.isAuth = this.lss.get('isAuth')
   }
@@ -27,6 +31,11 @@ export class NavbarComponent {
   async getUsername() {}
 
   ngOnInit() {
+    this.store.select(getFeedStatus).subscribe(
+      (res) => {
+        this.isfeed = res;
+      }
+    )
     this.router.events
     .pipe(filter(event => event instanceof NavigationEnd))
     .subscribe((event: any) => {

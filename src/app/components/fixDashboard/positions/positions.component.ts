@@ -22,7 +22,18 @@ export class PositionsComponent {
   }
 
   ngOnInit() {
-    this.apiService.positions(this.selAcc?.accountNo || 'accoundId').subscribe(
+    this.apiService.positions(this.selAcc).subscribe(
+      (res) => {
+        this.positions = res;
+        this.isLoading = false;
+      }
+    )
+  }
+
+  ngOnChanges(){
+    this.positions = [];
+    this.isLoading = true;
+    this.apiService.positions(this.selAcc).subscribe(
       (res) => {
         this.positions = res;
         this.isLoading = false;

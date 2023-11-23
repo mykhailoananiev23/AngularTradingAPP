@@ -9,7 +9,6 @@ import { NTVoyagerApiWtp } from 'src/app/services/api.service';
 })
 export class PositionSummaryInfoComponent {
   @Input() posSumm: any;
-  @Input() selAcc: any;
   @Output() dataEvent = new EventEmitter<boolean>();
   isCollapsed: any;
 
@@ -22,6 +21,10 @@ export class PositionSummaryInfoComponent {
     } else {
       this.isCollapsed = isCollapse
     }
+  }
+
+  ngOnChannges () {
+    console.log(this.posSumm)
   }
 
   handleClickCollapse () {

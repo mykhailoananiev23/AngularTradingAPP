@@ -19,7 +19,18 @@ export class TradebookComponent {
   }
 
   ngOnInit(){
-    this.apiService.trades(this.selAcc?.accountNo || 'accoundId').subscribe(
+    this.apiService.trades(this.selAcc).subscribe(
+      (res: any) => {
+        this.tradesbook = res;
+        this.isLoading = false;
+      }
+    )
+  }
+
+  ngOnChanges(){
+    this.tradesbook = [];
+    this.isLoading = true;
+    this.apiService.trades(this.selAcc).subscribe(
       (res: any) => {
         this.tradesbook = res;
         this.isLoading = false;
