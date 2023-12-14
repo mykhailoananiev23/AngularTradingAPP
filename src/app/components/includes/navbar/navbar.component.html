@@ -29,11 +29,10 @@
         <ng-container *ngIf="isAuth">
           <li>
             <button
-              class="btn btn-sm btn-nutcracker-connect visible-md-block visible-lg-block btn-warning"
-              ng-class="getlsStatus()"
+              class="btn btn-sm btn-nutcracker-connect visible-md-block visible-lg-block"
+              [class.btn-success]="isfeed === 2" [class.btn-warning]="isfeed === 1" [class.btn-danger]="isfeed === 0"
             >
-              <span class="glyphicon glyphicon-transfer"></span>Connecting -
-              Delayed Feed
+              <span class="glyphicon glyphicon-transfer"></span>{{isfeed === 2 ? 'Connected - Live Feed' : isfeed === 1 ?  'Connecting - Live Feed' : 'Disconnected - Live Feed'}}
             </button>
             <button
               class="btn btn-sm btn-nutcracker-connect btn-nutcracker-connect-mobile visible-xs-block visible-sm-block btn-warning"
@@ -147,3 +146,4 @@
     </div>
   </div>
 </header>
+<ngb-progressbar id="loading-bar" class="" type="danger" *ngIf="isLoading" [value]="progress" />

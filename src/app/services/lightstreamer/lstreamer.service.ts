@@ -14,6 +14,7 @@ export class LstreamerService {
   client: any;
   wlSubscription: any;
   siSubscription: any;
+  icSubscription: any;
   temp: any;
   status: any;
 
@@ -28,9 +29,10 @@ export class LstreamerService {
       onStatusChange: function(newStatus: any) {
         console.log("Client status:" + newStatus);
         if(newStatus === 'CONNECTED:WS-STREAMING'){
-          that.store.dispatch(UpdateFeedStatus({status: true}));
-        } else {
-          that.store.dispatch(UpdateFeedStatus({status: false}))
+          that.store.dispatch(UpdateFeedStatus({status: 2}));
+        } 
+        if(newStatus === 'CONNECTING') {
+          that.store.dispatch(UpdateFeedStatus({status: 1}))
         }
       }
     });
@@ -128,7 +130,6 @@ export class LstreamerService {
         this.client.unsubscribe(this.wlSubscription)
         this.wlSubscription = null;
       } catch (error) {
-        console.log(error)
       }
     }
   }
@@ -139,7 +140,16 @@ export class LstreamerService {
         this.client.unsubscribe(this.siSubscription)
         this.siSubscription = null;
       } catch (error) {
-        console.log(error)
+      }
+    }
+  }
+
+  icSubscriptionClear(){
+    if(this.icSubscription !== null){
+      try {
+        this.client.unsubscribe(this.icSubscription)
+        this.icSubscription = null;
+      } catch (error) {
       }
     }
   }
@@ -151,20 +161,14 @@ export class LstreamerService {
   subscribeWatchlists($obj: any) {
     this.wlSubscriptionClear();
     var items: any = this.lss.get('subWlList');
-    var fields = this.getFields('stockInfo');
+    var fields = this.getFields('watchlist');
     this.wlSubscription = new Subscription('MERGE', items, fields);
     this.wlSubscription.setDataAdapter('NTMARKETDATA');
     this.wlSubscription.setRequestedSnapshot("yes");
     this.wlSubscription.setRequestedMaxFrequency(1);
     this.client.subscribe(this.wlSubscription);
     this.wlSubscription.addListener({
-      onSubscription: function() {
-        console.log("Subscription started");
-      },
-      onUnsubscription: function() {
-        console.log("Subscription stopped");
-      },
-      onItemUpdate: (update: ItemUpdate) => $obj.onItemUpdate(update)
+      onItemUpdate: (update: ItemUpdate) => $obj.onItemUpdate(update, fields)
     });
   }
 
@@ -180,56 +184,45 @@ export class LstreamerService {
     this.siSubscription.setRequestedMaxFrequency(1);
     this.client.subscribe(this.siSubscription);
     this.siSubscription.addListener({
-      onSubscription: function() {
-        console.log("Subscription started");
-      },
-      onUnsubscription: function() {
-        console.log("Subscription stopped");
-      },
-      onItemUpdate: (update: ItemUpdate) => $obj.onItemUpdate(update, $obj)
+      onItemUpdate: (update: ItemUpdate) => $obj.onItemUpdate(update, fields)
     });
   }
 
-  subscribeIntradayChart() {}
+  subscribeIntradayChart($obj: any) {
+  }
 
   subscribeMarketMover() {}
 
-  getSubscription(items: any, fields: any, datas: any) {
-    var sub = new Subscription('MERGE', items, fields);
-    sub.setDataAdapter('NTMARKETDATA');
-    sub.setRequestedSnapshot('yes');
-    sub.setRequestedMaxFrequency(1);
-    sub.addListener({
-      onSubscription: function() {
-        console.log("Subscription started");
-      },
-      onUnsubscription: function() {
-        console.log("Subscription stopped");
-      },
-      onItemUpdate: (update) => {
-        console.log(update)
-        this.getStockItem(update, fields, datas)
-      },
-    });
-    this.client.subscribe(sub);
-    this.client.connect();
-  }
+  // getSubscription(items: any, fields: any, datas: any) {
+  //   var sub = new Subscription('MERGE', items, fields);
+  //   sub.setDataAdapter('NTMARKETDATA');
+  //   sub.setRequestedSnapshot('yes');
+  //   sub.setRequestedMaxFrequency(1);
+  //   sub.addListener({
+  //     onItemUpdate: (update) => {
+  //       console.log(update)
+  //       this.getStockItem(update, fields, datas)
+  //     },
+  //   });
+  //   this.client.subscribe(sub);
+  //   this.client.connect();
+  // }
 
-  getStockItem(update: ItemUpdate, field: any, instrument: any){
-    var itemPos = update.getItemPos();
-    function getStockItem(update: ItemUpdate, instrument: any){
-      for (var f of field) {
-        var val: string = update.getValue(f);
-        if((val !== ' ') && (val !== null) && parseFloat(val)){
-          if(f == 'B1'){
-            console.log(val)
-          }
-          instrument[f] = val;
-        }
-      }
-    }
-    getStockItem(update, instrument[itemPos-1]);
-  }
+  // getStockItem(update: ItemUpdate, field: any, instrument: any){
+  //   var itemPos = update.getItemPos();
+  //   function getStockItem(update: ItemUpdate, instrument: any){
+  //     for (var f of field) {
+  //       var val: string = update.getValue(f);
+  //       if((val !== ' ') && (val !== null) && parseFloat(val)){
+  //         if(f == 'B1'){
+  //           console.log(val)
+  //         }
+  //         instrument[f] = val;
+  //       }
+  //     }
+  //   }
+  //   getStockItem(update, instrument[itemPos-1]);
+  // }
 
   
 }

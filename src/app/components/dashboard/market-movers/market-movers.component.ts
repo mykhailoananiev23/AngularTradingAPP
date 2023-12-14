@@ -1,12 +1,13 @@
 import { Component, Input, EventEmitter, Output } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { LocalStorageService } from 'ngx-localstorage';
+import { UpdateStockInfo } from 'src/app/reducers/market/market.action';
 import { NTVoyagerApiWtp } from 'src/app/services/api.service';
 
 @Component({
   selector: 'app-market-movers',
   templateUrl: './market-movers.component.html',
-  styleUrls: ['./market-movers.component.css']
+  styleUrls: ['./market-movers.component.css'],
 })
 export class MarketMoversComponent {
   @Output() dataEvent = new EventEmitter<any>();
@@ -27,8 +28,12 @@ export class MarketMoversComponent {
     // )
   }
 
-  ngOnInit(){
-    
+  ngOnInit() {
+    this.apiService
+      .marketMovers(this.exchange, this.moverType, '10')
+      .subscribe((res) => {
+        this.marketMovers = res;
+      });
   }
 
   ngOnChanges() {
@@ -40,9 +45,12 @@ export class MarketMoversComponent {
     )
   }
 
-  navstockInfo(pesk: any, symbol: any, name: any){
+  navstockInfo(pesk: any, symbol: any, name: any) {
     this.lss.set('siPesk', pesk);
     this.lss.set('siSymbol', symbol);
     this.lss.set('siName', name);
+    this.store.dispatch(
+      UpdateStockInfo({ stockInfo: 'stockInfo' + new Date().getTime() })
+    );
   }
 }

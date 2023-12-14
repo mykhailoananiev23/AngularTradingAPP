@@ -8,7 +8,7 @@ import * as am5stock from '@amcharts/amcharts5/stock';
 import { LocalStorageService } from 'ngx-localstorage';
 import { NTVoyagerApiWtp } from 'src/app/services/api.service';
 import am5themes_Animated from '@amcharts/amcharts5/themes/Animated';
-import { getMarketData } from 'src/app/reducers/market/market.selector';
+import { getCharData, getMarketData, getStockInfo } from 'src/app/reducers/market/market.selector';
 
 @Component({
   selector: 'app-stockchart',
@@ -16,38 +16,59 @@ import { getMarketData } from 'src/app/reducers/market/market.selector';
   styleUrls: ['./stockchart.component.css'],
 })
 export class StockchartComponent {
-  chartData: any; // for test
-  chartData1: any;
+  chartData: any;
   pesk: any;
+  root: any;
+  stockChart: any;
+  valueSeries: any;
+  volumeSeries: any;
+  
   constructor(
     private store: Store,
     private lss: LocalStorageService,
-    private apiService: NTVoyagerApiWtp
+    private apiService: NTVoyagerApiWtp,
   ) {
-    this.chartData1 = [];
+    this.chartData = [];
   }
-
+  
   ngOnInit() {
-    this.store.select(getMarketData).subscribe((res) => {
-      this.getChartData()
-    });
-  }
-
-  getChartData () {
+    this.root = am5.Root.new('chartdiv');
     var pesk: any = this.lss.get('siPesk');
-    this.apiService.chartDataBasic(pesk, '200').subscribe((res: any) => {
-      this.chartData1 = res;
-      this.createChart(this.chartData1)
+    if(pesk){
+      this.apiService.chartDataBasic(pesk, '200').subscribe((res: any) => {
+        this.chartData = res;
+        this.createChart()
+      });
+    }
+    this.store.select(getStockInfo).subscribe((res) => {
+      var pesk: any = this.lss.get('siPesk');
+      if(pesk){
+        this.apiService.chartDataBasic(pesk, '200').subscribe((res: any) => {
+          if(this.root.container.children){
+            this.root.container.children._onRemoved(this.stockChart)
+          }
+          this.chartData = res;
+          this.createChart()
+        });
+      }
     });
+    // this.store.select(getStockInfo).subscribe(
+    //   (res) => {
+    //     var pesk: any = this.lss.get('siPesk');
+    //     if(pesk){
+    //       this.apiService.chartDataBasic(pesk, '200').subscribe((res: any) => {
+    //         console.log(res)
+    //       });
+    //     }
+    //   }
+    // )
   }
 
-  createChart(data: any) {
-    let root = am5.Root.new('chartdiv');
-
+  createChart() {
     // Create a stock chart
     // https://www.amcharts.com/docs/v5/charts/stock-chart/#Instantiating_the_chart
-    let stockChart = root.container.children.push(
-      am5stock.StockChart.new(root, {})
+    this.stockChart = this.root.container.children.push(
+      am5stock.StockChart.new(this.root, {})
     );
 
     /**
@@ -56,8 +77,8 @@ export class StockchartComponent {
 
     // Create a main stock panel (chart)
     // https://www.amcharts.com/docs/v5/charts/stock-chart/#Adding_panels
-    let mainPanel = stockChart.panels.push(
-      am5stock.StockPanel.new(root, {
+    let mainPanel = this.stockChart.panels.push(
+      am5stock.StockPanel.new(this.root, {
         wheelY: 'zoomX',
         panX: true,
         panY: true,
@@ -67,52 +88,52 @@ export class StockchartComponent {
     // Create axes
     // https://www.amcharts.com/docs/v5/charts/xy-chart/axes/
     let valueAxis = mainPanel.yAxes.push(
-      am5xy.ValueAxis.new(root, {
-        renderer: am5xy.AxisRendererY.new(root, {}),
+      am5xy.ValueAxis.new(this.root, {
+        renderer: am5xy.AxisRendererY.new(this.root, {}),
       })
     );
 
     let dateAxis = mainPanel.xAxes.push(
-      am5xy.GaplessDateAxis.new(root, {
+      am5xy.GaplessDateAxis.new(this.root, {
         baseInterval: {
           timeUnit: 'day',
           count: 1,
         },
-        renderer: am5xy.AxisRendererX.new(root, {}),
+        renderer: am5xy.AxisRendererX.new(this.root, {}),
       })
     );
 
     // Add series
     // https://www.amcharts.com/docs/v5/charts/xy-chart/series/
-    let valueSeries = mainPanel.series.push(
-      am5xy.LineSeries.new(root, {
+    this.valueSeries = mainPanel.series.push(
+      am5xy.LineSeries.new(this.root, {
         name: 'STCK',
         valueXField: 'date',
         valueYField: 'closePrice',
         xAxis: dateAxis,
         yAxis: valueAxis,
         legendValueText: '{valueY}',
-        tooltip: am5.Tooltip.new(root, {
+        tooltip: am5.Tooltip.new(this.root, {
           pointerOrientation: 'horizontal',
           labelText: '{valueY}',
         }),
       })
     );
 
-    valueSeries.fills.template.setAll({
+    this.valueSeries.fills.template.setAll({
       fillOpacity: 0.2,
       visible: true,
     });
 
-    valueSeries.set('fill', am5.color(0x00ff00));
-    valueSeries.set('stroke', am5.color(0x00ff00));
-    valueSeries.data.processor = am5.DataProcessor.new(root, {
+    this.valueSeries.set('fill', am5.color(0x00ff00));
+    this.valueSeries.set('stroke', am5.color(0x00ff00));
+    this.valueSeries.data.processor = am5.DataProcessor.new(this.root, {
       numericFields: ["closePrice"],
       dateFields: ["date"]
     });
-    valueSeries.data.setAll(data);
-    valueSeries.children.unshift(
-      am5.Label.new(root, {
+    this.valueSeries.data.setAll(this.chartData);
+    this.valueSeries.children.unshift(
+      am5.Label.new(this.root, {
         text: 'Value',
       })
     );
@@ -122,8 +143,8 @@ export class StockchartComponent {
 
     // Create a main stock panel (chart)
     // https://www.amcharts.com/docs/v5/charts/stock-chart/#Adding_panels
-    let volumePanel = stockChart.panels.push(
-      am5stock.StockPanel.new(root, {
+    let volumePanel = this.stockChart.panels.push(
+      am5stock.StockPanel.new(this.root, {
         wheelY: 'zoomX',
         panX: true,
         panY: true,
@@ -134,73 +155,73 @@ export class StockchartComponent {
     // Create axes
     // https://www.amcharts.com/docs/v5/charts/xy-chart/axes/
     let volumeValueAxis = volumePanel.yAxes.push(
-      am5xy.ValueAxis.new(root, {
+      am5xy.ValueAxis.new(this.root, {
         numberFormat: '#.#a',
-        renderer: am5xy.AxisRendererY.new(root, {}),
+        renderer: am5xy.AxisRendererY.new(this.root, {}),
       })
     );
 
     let volumeDateAxis = volumePanel.xAxes.push(
-      am5xy.GaplessDateAxis.new(root, {
+      am5xy.GaplessDateAxis.new(this.root, {
         baseInterval: {
           timeUnit: 'day',
           count: 1,
         },
-        renderer: am5xy.AxisRendererX.new(root, {}),
+        renderer: am5xy.AxisRendererX.new(this.root, {}),
       })
     );
 
     // Add series
     // https://www.amcharts.com/docs/v5/charts/xy-chart/series/
-    let volumeSeries = volumePanel.series.push(
-      am5xy.ColumnSeries.new(root, {
+    this.volumeSeries = volumePanel.series.push(
+      am5xy.ColumnSeries.new(this.root, {
         name: 'STCK',
         valueXField: 'date',
         valueYField: 'volume',
         xAxis: volumeDateAxis,
         yAxis: volumeValueAxis,
         legendValueText: '{valueY}',
-        tooltip: am5.Tooltip.new(root, {
+        tooltip: am5.Tooltip.new(this.root, {
           pointerOrientation: 'horizontal',
           labelText: '{valueY}',
         }),
       })
     );
-    volumeSeries.set('stroke', am5.color(0xff0000));
-    volumeSeries.set('fill', am5.color(0xff0000));
-    volumeSeries.children.unshift(
-      am5.Label.new(root, {
+    this.volumeSeries.set('stroke', am5.color(0xff0000));
+    this.volumeSeries.set('fill', am5.color(0xff0000));
+    this.volumeSeries.children.unshift(
+      am5.Label.new(this.root, {
         text: 'Volumn',
       })
     );
-    volumeSeries.data.processor = am5.DataProcessor.new(root, {
+    this.volumeSeries.data.processor = am5.DataProcessor.new(this.root, {
       numericFields: ["volume"],
       dateFields: ["date"]
     });
-    volumeSeries.data.setAll(data);
+    this.volumeSeries.data.setAll(this.chartData);
 
     // Set main value series
     // https://www.amcharts.com/docs/v5/charts/stock-chart/#Setting_main_series
-    stockChart.set('volumeSeries', volumeSeries);
+    this.stockChart.set('volumeSeries', this.volumeSeries);
 
     // Add cursor(s)
     // https://www.amcharts.com/docs/v5/charts/xy-chart/cursor/
     mainPanel.set(
       'cursor',
-      am5xy.XYCursor.new(root, {
+      am5xy.XYCursor.new(this.root, {
         yAxis: valueAxis,
         xAxis: dateAxis,
-        snapToSeries: [valueSeries],
+        snapToSeries: [this.valueSeries],
         snapToSeriesBy: 'y!',
       })
     );
 
     volumePanel.set(
       'cursor',
-      am5xy.XYCursor.new(root, {
+      am5xy.XYCursor.new(this.root, {
         yAxis: volumeValueAxis,
         xAxis: volumeDateAxis,
-        snapToSeries: [volumeSeries],
+        snapToSeries: [this.volumeSeries],
         snapToSeriesBy: 'y!',
       })
     );

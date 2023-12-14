@@ -21,9 +21,9 @@
                     </tr>
                     <tr>
                         <td class="hidden-xs">Change</td>
-                        <td data-title="Change" class="numeric text- stockInfo.chgColour " style="padding-right: 10px;"> {{stockInfo.Chg}} &nbsp;</td>
+                        <td data-title="Change" class="numeric text- stockInfo.chgColour " [class.warning]="stockInfo.chgColour === 'warning'" [class.danger]="stockInfo.chgColour === 'danger'" [class.success]="stockInfo.chgColour === 'success'" style="padding-right: 10px;"> {{stockInfo.CHG}} &nbsp;</td>
                         <td class="hidden-xs">Change %</td>
-                        <td data-title="Change %" class="numeric text- stockInfo.chgColour "><span ng-hide="stockInfo.ChgP === null || stockInfo.ChgP === ''"> {{stockInfo.ChgP | number:'1.2-2'}} </span>&nbsp;</td>
+                        <td data-title="Change %" class="numeric text- stockInfo.chgColour " [class.warning]="stockInfo.chgColour === 'warning'" [class.danger]="stockInfo.chgColour === 'danger'" [class.success]="stockInfo.chgColour === 'success'"><span ng-hide="stockInfo.ChgP === null || stockInfo.ChgP === ''"> {{stockInfo.CHGP | number:'1.2-2'}} </span>&nbsp;</td>
                     </tr>
                     <tr>
                         <td class="hidden-xs">Low</td>
@@ -33,19 +33,19 @@
                     </tr>
                     <tr>
                         <td class="hidden-xs">No. of Trades</td>
-                        <td data-title="No. of Trades" class="numeric" style="padding-right: 10px;"> {{stockInfo.NTrd | number}} &nbsp;</td>
+                        <td data-title="No. of Trades" class="numeric" style="padding-right: 10px;"> {{stockInfo.NTRD}} &nbsp;</td>
                         <td class="hidden-xs">Prev. Close</td>
-                        <td data-title="Prev. Close" class="numeric"> {{stockInfo.Cls}} &nbsp;</td>
+                        <td data-title="Prev. Close" class="numeric"> {{stockInfo.CLS}} &nbsp;</td>
                     </tr>
                     <tr>
                         <td class="hidden-xs">Trade Volume</td>
-                        <td data-title="Trade. Volume" class="numeric" style="padding-right: 10px;"> {{stockInfo.TVol | number}} &nbsp;</td>
+                        <td data-title="Trade. Volume" class="numeric" style="padding-right: 10px;"> {{stockInfo.TVOL}} &nbsp;</td>
                         <td class="hidden-xs">Trade Value</td>
-                        <td data-title="Trade. Value" class="numeric"> {{stockInfo.TVal | number:'1.2-2'}} &nbsp;</td>
+                        <td data-title="Trade. Value" class="numeric"> {{stockInfo.TVAL }} &nbsp;</td>
                     </tr>
                     <tr>
                         <td class="hidden-xs">Trading Status</td>
-                        <td data-title="Trading Status" colspan="3" class="numeric"> {{stockInfo.St}} &nbsp;</td>
+                        <td data-title="Trading Status" colspan="3" class="numeric"> {{stockInfo.ST}} &nbsp;</td>
                     </tr>
                 </tbody>
             </table>
@@ -64,20 +64,20 @@
             <tbody>
                 <tr>
                     <td class="numeric" style="height: 21px;"> {{stockInfo.BS1}} </td>
-                    <td class="numeric"> {{stockInfo.B1}} </td>
-                    <td class="numeric"> {{stockInfo.A1}} </td>
+                    <td class="numeric"> {{stockInfo.BP1}} </td>
+                    <td class="numeric"> {{stockInfo.AP1}} </td>
                     <td class="numeric"> {{stockInfo.AS1}} </td>
                 </tr>
                 <tr>
                     <td class="numeric" style="height: 21px;"> {{stockInfo.BS2}} </td>
-                    <td class="numeric"> {{stockInfo.B2}} </td>
-                    <td class="numeric"> {{stockInfo.A2}} </td>
+                    <td class="numeric"> {{stockInfo.BP2}} </td>
+                    <td class="numeric"> {{stockInfo.AP2}} </td>
                     <td class="numeric"> {{stockInfo.AS2}} </td>
                 </tr>
                 <tr>
                     <td class="numeric" style="height: 21px;"> {{stockInfo.BS3}} </td>
-                    <td class="numeric"> {{stockInfo.B3}} </td>
-                    <td class="numeric"> {{stockInfo.A3}} </td>
+                    <td class="numeric"> {{stockInfo.BP3}} </td>
+                    <td class="numeric"> {{stockInfo.AP3}} </td>
                     <td class="numeric"> {{stockInfo.AS3}} </td>
                 </tr>
             </tbody>
@@ -93,52 +93,52 @@
             </thead>
             <tbody>
                 <tr>
-                    <td class="numeric" style="height:21px;"> {{stockInfo.LTP1}} </td>
-                    <td class="numeric"> {{stockInfo.LTS1}}</td>
-                    <td style="text-align:center;"> {{stockInfo.LTT1}} </td>
-                    <td class="numeric" ng-class="getColour(stockInfo.Chg1,true)">
+                    <td [class.warning]="stockInfo.chgColour === 'warning'" [class.danger]="stockInfo.chgColour === 'danger'" [class.success]="stockInfo.chgColour === 'success'" class="numeric" style="height:21px;"> {{stockInfo.LTP1}} </td>
+                    <td [class.warning]="stockInfo.chgColour === 'warning'" [class.danger]="stockInfo.chgColour === 'danger'" [class.success]="stockInfo.chgColour === 'success'" class="numeric"> {{stockInfo.LTS1}}</td>
+                    <td [class.warning]="stockInfo.chgColour === 'warning'" [class.danger]="stockInfo.chgColour === 'danger'" [class.success]="stockInfo.chgColour === 'success'" style="text-align:center;"> {{stockInfo.LTT1}} </td>
+                    <td [class.warning]="stockInfo.chgColour === 'warning'" [class.danger]="stockInfo.chgColour === 'danger'" [class.success]="stockInfo.chgColour === 'success'" class="numeric" ng-class="getColour(stockInfo.Chg1,true)">
                         <span ng-show="showChange(stockInfo.LTP1)">
-                             {{stockInfo.Chg1}} 
+                             {{stockInfo.CHG1}} 
                         </span>
                     </td>
                 </tr>
                 <tr>
-                    <td class="numeric" style="height: 21px;"> {{stockInfo.LTP2}} </td>
-                    <td class="numeric"> {{stockInfo.LTS2}} </td>
-                    <td style="text-align:center;"> {{stockInfo.LTT2}} </td>
-                    <td class="numeric" ng-class="getColour(stockInfo.Chg2,true)">
+                    <td [class.warning]="stockInfo.chgColour === 'warning'" [class.danger]="stockInfo.chgColour === 'danger'" [class.success]="stockInfo.chgColour === 'success'" class="numeric" style="height: 21px;"> {{stockInfo.LTP2}} </td>
+                    <td [class.warning]="stockInfo.chgColour === 'warning'" [class.danger]="stockInfo.chgColour === 'danger'" [class.success]="stockInfo.chgColour === 'success'" class="numeric"> {{stockInfo.LTS2}} </td>
+                    <td [class.warning]="stockInfo.chgColour === 'warning'" [class.danger]="stockInfo.chgColour === 'danger'" [class.success]="stockInfo.chgColour === 'success'" style="text-align:center;"> {{stockInfo.LTT2}} </td>
+                    <td [class.warning]="stockInfo.chgColour === 'warning'" [class.danger]="stockInfo.chgColour === 'danger'" [class.success]="stockInfo.chgColour === 'success'" class="numeric" ng-class="getColour(stockInfo.Chg2,true)">
                         <span ng-show="showChange(stockInfo.LTP2)">
-                             {{stockInfo.Chg2 }}
+                             {{stockInfo.CHG2 }}
                         </span>
                     </td>
                 </tr>
                 <tr>
-                    <td class="numeric" style="height: 21px;"> {{stockInfo.LTP3}} </td>
-                    <td class="numeric"> {{stockInfo.LTS3}} </td>
-                    <td style="text-align:center;"> {{stockInfo.LTT3}} </td>
-                    <td class="numeric" ng-class="getColour(stockInfo.Chg3,true)">
+                    <td [class.warning]="stockInfo.chgColour === 'warning'" [class.danger]="stockInfo.chgColour === 'danger'" [class.success]="stockInfo.chgColour === 'success'" class="numeric" style="height: 21px;"> {{stockInfo.LTP3}} </td>
+                    <td [class.warning]="stockInfo.chgColour === 'warning'" [class.danger]="stockInfo.chgColour === 'danger'" [class.success]="stockInfo.chgColour === 'success'" class="numeric"> {{stockInfo.LTS3}} </td>
+                    <td [class.warning]="stockInfo.chgColour === 'warning'" [class.danger]="stockInfo.chgColour === 'danger'" [class.success]="stockInfo.chgColour === 'success'" style="text-align:center;"> {{stockInfo.LTT3}} </td>
+                    <td [class.warning]="stockInfo.chgColour === 'warning'" [class.danger]="stockInfo.chgColour === 'danger'" [class.success]="stockInfo.chgColour === 'success'" class="numeric" ng-class="getColour(stockInfo.Chg3,true)">
                         <span ng-show="showChange(stockInfo.LTP3)">
-                             {{stockInfo.Chg3}} 
+                             {{stockInfo.CHG3}} 
                         </span>
                     </td>
                 </tr>
                 <tr>
-                    <td class="numeric" style="height: 21px;"> {{stockInfo.LTP4}} </td>
-                    <td class="numeric"> {{stockInfo.LTS4}} </td>
-                    <td style="text-align:center;"> {{stockInfo.LTT4}} </td>
-                    <td class="numeric" ng-class="getColour(stockInfo.Chg4,true)">
+                    <td [class.warning]="stockInfo.chgColour === 'warning'" [class.danger]="stockInfo.chgColour === 'danger'" [class.success]="stockInfo.chgColour === 'success'" class="numeric" style="height: 21px;"> {{stockInfo.LTP4}} </td>
+                    <td [class.warning]="stockInfo.chgColour === 'warning'" [class.danger]="stockInfo.chgColour === 'danger'" [class.success]="stockInfo.chgColour === 'success'" class="numeric"> {{stockInfo.LTS4}} </td>
+                    <td [class.warning]="stockInfo.chgColour === 'warning'" [class.danger]="stockInfo.chgColour === 'danger'" [class.success]="stockInfo.chgColour === 'success'" style="text-align:center;"> {{stockInfo.LTT4}} </td>
+                    <td [class.warning]="stockInfo.chgColour === 'warning'" [class.danger]="stockInfo.chgColour === 'danger'" [class.success]="stockInfo.chgColour === 'success'" class="numeric" ng-class="getColour(stockInfo.Chg4,true)">
                         <span ng-show="showChange(stockInfo.LTP4)">
-                             {{stockInfo.Chg4}} 
+                             {{stockInfo.CHG4}} 
                         </span>
                     </td>
                 </tr>
                 <tr>
-                    <td class="numeric" style="height: 21px;"> {{stockInfo.LTP5}} </td>
-                    <td class="numeric"> {{stockInfo.LTS5}} </td>
-                    <td style="text-align:center;"> {{stockInfo.LTT5}} </td>
-                    <td class="numeric" ng-class="getColour(stockInfo.Chg5,true)">
+                    <td [class.warning]="stockInfo.chgColour === 'warning'" [class.danger]="stockInfo.chgColour === 'danger'" [class.success]="stockInfo.chgColour === 'success'" class="numeric" style="height: 21px;"> {{stockInfo.LTP5}} </td>
+                    <td [class.warning]="stockInfo.chgColour === 'warning'" [class.danger]="stockInfo.chgColour === 'danger'" [class.success]="stockInfo.chgColour === 'success'" class="numeric"> {{stockInfo.LTS5}} </td>
+                    <td [class.warning]="stockInfo.chgColour === 'warning'" [class.danger]="stockInfo.chgColour === 'danger'" [class.success]="stockInfo.chgColour === 'success'" style="text-align:center;"> {{stockInfo.LTT5}} </td>
+                    <td [class.warning]="stockInfo.chgColour === 'warning'" [class.danger]="stockInfo.chgColour === 'danger'" [class.success]="stockInfo.chgColour === 'success'" class="numeric" ng-class="getColour(stockInfo.Chg5,true)">
                         <span ng-show="showChange(stockInfo.LTP5)">
-                             {{stockInfo.Chg5}} 
+                             {{stockInfo.CHG5}} 
                         </span>
                     </td>
                 </tr>

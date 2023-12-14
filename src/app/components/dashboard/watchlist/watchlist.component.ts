@@ -9,10 +9,12 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { RenameWatchlistNameComponent } from '../../templates/rename-watchlist-name/rename-watchlist-name.component';
 import { DeleteWatchlistComponent } from '../../templates/delete-watchlist/delete-watchlist.component';
 import { InstrumentSearchComponent } from '../../templates/instrument-search/instrument-search.component';
-import { UpdateMarketData } from 'src/app/reducers/market/market.action';
+import { UpdateChartInfo, UpdateMarketData, UpdateStockInfo } from 'src/app/reducers/market/market.action';
 import { getMarketData } from 'src/app/reducers/market/market.selector';
 import { ItemUpdate, LightstreamerClient, Subscription } from 'lightstreamer-client-web/lightstreamer.esm';
 import { lsClient } from 'src/app/services/lightstreamer/lsClient';
+import { LstreamerService } from 'src/app/services/lightstreamer/lstreamer.service';
+import { NewOrderComponent } from '../../templates/new-order/new-order.component';
 
 @Component({
   selector: 'app-watchlist',
@@ -26,10 +28,10 @@ export class WatchlistComponent {
   symbol: any;
   ThreeLineDepth: any;
   selWlId: any;
-  client: LightstreamerClient;
   // test
-  items = ["NUTEX.EQ.Q2Q","NUTEX.EQ.PEC","NUTEX.EQ.UNG","NUTEX.EQ.VBG","NUTEX.EQ.SFC","NUTEX.EQ.HPO","NUTEX.EQ.GDI","NUTEX.EQ.ABC","NUTEX.EQ.HTP","NUTEX.EQ.TWM"];
-  field = ["L", "H", "BS1", "BP1", "AP1", "AS1", "LTP", "LTS", "LTT", "CHG", "CHGP", "CLS"];
+  // client: LightstreamerClient;
+  // items = ["NUTEX.EQ.Q2Q","NUTEX.EQ.PEC","NUTEX.EQ.UNG","NUTEX.EQ.VBG","NUTEX.EQ.SFC","NUTEX.EQ.HPO","NUTEX.EQ.GDI","NUTEX.EQ.ABC","NUTEX.EQ.HTP","NUTEX.EQ.TWM"];
+  // field = ["L", "H", "BS1", "BP1", "AP1", "AS1", "LTP", "LTS", "LTT", "CHG", "CHGP", "CLS"];
 
   constructor(
     private lss: LocalStorageService,
@@ -37,6 +39,7 @@ export class WatchlistComponent {
     private notif: ToastrService,
     private store: Store,
     private modalService: NgbModal,
+    private lsService: LstreamerService
   ) {
     this.symbol = '';
     this.watchlists = this.lss.get<WatchlistDTO[]>('watchlists');
@@ -48,30 +51,56 @@ export class WatchlistComponent {
       this.ThreeLineDepth = this.lss.get('ThreeLineDepth')
     }
 
-    var sub = new Subscription('MERGE', this.items, this.field);
-    sub.setDataAdapter('NTMARKETDATA');
-    sub.setRequestedSnapshot("yes");
-    sub.setRequestedMaxFrequency(1);
-    sub.addListener(this);
-    this.client = lsClient;
-    this.client.subscribe(sub)
+    // var sub = new Subscription('MERGE', this.items, this.field);
+    // sub.setDataAdapter('NTMARKETDATA');
+    // sub.setRequestedSnapshot("yes");
+    // sub.setRequestedMaxFrequency(1);
+    // sub.addListener(this);
+    // this.client = lsClient;
+    // this.client.connect()
+    // this.client.subscribe(sub)
   }
 
-  onItemUpdate(update: ItemUpdate){
+  // onItemUpdate(update: ItemUpdate){
+  //   console.log(update)
+  //   var itemPos = update.getItemPos();
+  //   var that = this;
+  //   function getStockItem(update: ItemUpdate, itemPos: number, instrument: any){
+  //     for (var f of that.field) {
+  //       var val: string = update.getValue(f);
+  //       if((val !== ' ') && (val !== null) && parseFloat(val)){
+  //         if(f == 'B1'){
+  //           console.log(val)
+  //         }
+  //         instrument[f] = val;
+  //       }
+  //     }
+  //   }
+  //   getStockItem(update, itemPos, this.instruments[itemPos-1]);
+  // }
+
+  onItemUpdate(update: ItemUpdate, obj: any){
     var itemPos = update.getItemPos();
-    var that = this;
-    function getStockItem(update: ItemUpdate, itemPos: number, instrument: any){
-      for (var f of that.field) {
-        var val: string = update.getValue(f);
-        if((val !== ' ') && (val !== null) && parseFloat(val)){
-          if(f == 'B1'){
-            console.log(val)
-          }
-          instrument[f] = val;
+    for (var f of obj) {
+      var val: string = update.getValue(f);
+      var chgp = update.getValue("CHGP");
+      if(parseFloat(chgp) < 0){
+        this.instruments[itemPos-1]["chgColour"] = 'danger'
+      }
+      if(parseFloat(chgp) > 0){
+        this.instruments[itemPos-1]["chgColour"] = 'success'
+      }
+      if(parseFloat(chgp) === 0){
+        this.instruments[itemPos-1]["chgColour"] = 'warning'
+      }
+      if((val !== ' ') && (val !== null) && parseFloat(val)){
+        if(f === "CHGP"){
+          this.instruments[itemPos-1]["CHGP"] = chgp;
+        } else {
+          this.instruments[itemPos-1][f] = val;
         }
       }
     }
-    getStockItem(update, itemPos, this.instruments[itemPos-1]);
   }
 
 
@@ -81,17 +110,15 @@ export class WatchlistComponent {
         this.watchlists = this.lss.get('watchlists');
         this.selectedWatchlist = this.lss.get<WatchlistDTO>('watchlist');
         this.selWlId = this.selectedWatchlist.id;
-        this.instruments = this.lss.get('instruments')
+        this.instruments = this.lss.get('instruments');
+        this.lsService.subscribeWatchlists(this)
       }
     )
-    if (this.lss.get('ThreeLineDepth') == (null || undefined)) {
-      this.lss.set('ThreeLineDepth', false);
-    }
     this.watchlists = this.lss.get('watchlists');
     this.selectedWatchlist = this.lss.get<WatchlistDTO>('watchlist');
     this.selWlId = this.selectedWatchlist.id;
     this.instruments = this.lss.get('instruments')
-    this.client.connect();
+    this.lsService.subscribeWatchlists(this)
   }
   
   ngOnChanges(){
@@ -99,24 +126,23 @@ export class WatchlistComponent {
   }
 
   toggleDepth() {
-    this.notif.warning("ThreeLineDepth is in development!", "Warning!")
-    // this.ThreeLineDepth = !this.lss.get('ThreeLineDepth');
-    // this.lss.set('ThreeLineDepth', this.ThreeLineDepth);
-    // if (this.ThreeLineDepth) {
-    //   var instruments: any = this.lss.get('instruments');
-    //   // instruments.forEach((ele: any) => {
-    //   //   ele.B2 = '';
-    //   //   ele.BS2 = '';
-    //   //   ele.A2 = '';
-    //   //   ele.AS2 = '';
-    //   //   ele.B3 = '';
-    //   //   ele.BS3 = '';
-    //   //   ele.A3 = '';
-    //   //   ele.AS3 = '';
-    //   // });
-    //   this.lss.set('instruments', instruments);
-    // }
-    // subscribeData
+    this.ThreeLineDepth = !this.ThreeLineDepth;
+    console.log(this.ThreeLineDepth)
+    this.lss.set('ThreeLineDepth', this.ThreeLineDepth);
+    if (this.ThreeLineDepth) {
+      var instruments: any = this.lss.get('instruments');
+      instruments.forEach((ele: any) => {
+        ele.BP2 = '0';
+        ele.BS2 = '0';
+        ele.AP2 = '0';
+        ele.AS2 = '0';
+        ele.BP3 = '0';
+        ele.BS3 = '0';
+        ele.AP3 = '0';
+        ele.AS3 = '0';
+      });
+      this.lss.set('instruments', instruments);
+    }
   }
 
   trackByFn(index: number, item: any) {
@@ -150,11 +176,12 @@ export class WatchlistComponent {
                 )
                 );
               subTemp.push(ele.pesk)
-                // wlSubscription save
             });
+            // wlSubscription save
             this.lss.set('subWlList', subTemp)
             this.lss.set('instruments', temp);
             this.instruments = temp;
+            this.lsService.subscribeWatchlists(this)
           }
         },
         (err) => [console.log(err)]
@@ -190,7 +217,8 @@ export class WatchlistComponent {
     this.lss.set('siPesk', pesk);
     this.lss.set('siSymbol', symbol);
     this.lss.set('siName', name);
-    this.store.dispatch(UpdateMarketData({data: pesk}));
+    this.store.dispatch(UpdateStockInfo({stockInfo: ('stockInfo' + new Date().getTime())}));
+    // this.store.dispatch(UpdateChartInfo({chartData: 'chartData' + new Date().getTime()}))
   }
 
   subscribeData() {
@@ -276,20 +304,31 @@ export class WatchlistComponent {
   }
 
   newOrder(side: string, price: string, pesk: string) {
-    try {
-      var od = OrderDetails(side, price, pesk);
-      // if ($rootScope.swapWatchlistBuySell) {
-      if (od.Side === 'B') {
-        od.Side = 'S';
-      } else {
-        od.Side = 'B';
+    const modalRef = this.modalService.open(NewOrderComponent, { backdrop: 'static', modalDialogClass: 'modal-lg' });
+    // modalRef.componentInstance.instrumentCollection = data.items;
+    
+    modalRef.result.then((selectedInstrument) => {
+      // tradableInstrument = selectedInstrument;
+      // this.openOrderEntry(od, tradableInstrument);
+      },
+      (dismissReason) => {
+        console.log('Modal dismissed:', dismissReason);
       }
-      // }
-      var tradableInstrument = null;
-      //Find all tradable instruments by Public Exchange Symbol Key
-    } catch (error) {
-      this.notif.error(String(error), 'Warning!');
-    }
+    );
+    // try {
+    //   var od = OrderDetails(side, price, pesk);
+    //   // if ($rootScope.swapWatchlistBuySell) {
+    //   if (od.Side === 'B') {
+    //     od.Side = 'S';
+    //   } else {
+    //     od.Side = 'B';
+    //   }
+    //   // }
+    //   var tradableInstrument = null;
+    //   //Find all tradable instruments by Public Exchange Symbol Key
+    // } catch (error) {
+    //   this.notif.error(String(error), 'Warning!');
+    // }
   }
 
   openOrderEntry() {}

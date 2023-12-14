@@ -10,13 +10,4 @@ import { LstreamerService } from './services/lightstreamer/lstreamer.service';
 })
 export class AppComponent {
   title = 'nutrade';
-  constructor(
-    private lsService: LstreamerService
-  ) {
-    this.lsService.client.connect();
-  }
-    
-  ngOnInit(){
-    this.lsService.client.connect();
-  }
 }

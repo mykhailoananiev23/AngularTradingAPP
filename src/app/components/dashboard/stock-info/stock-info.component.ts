@@ -4,7 +4,7 @@ import { NTVoyagerApiWtp } from 'src/app/services/api.service';
 import { InstrumentSearchComponent } from '../../templates/instrument-search/instrument-search.component';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Store } from '@ngrx/store';
-import { getMarketData } from 'src/app/reducers/market/market.selector';
+import { getStockInfo } from 'src/app/reducers/market/market.selector';
 import { LstreamerService } from 'src/app/services/lightstreamer/lstreamer.service';
 import { ItemUpdate } from 'lightstreamer-client-web/lightstreamer.esm';
 
@@ -25,28 +25,29 @@ export class StockInfoComponent {
     private lsService: LstreamerService
   ) {
     this.symbol = this.lss.get('siSymbol');
-    this.lsService.subscribeStockInfo(this);
   }
 
   onItemUpdate(update: ItemUpdate, obj: any){
-    console.log(update)
-    var itemPos = update.getItemPos();
-    function getStockItem(update: ItemUpdate, instrument: any){
-      for (var f of obj.field) {
-        var val: string = update.getValue(f);
-        if((val !== ' ') && (val !== null) && parseFloat(val)){
-          if(f == 'B1'){
-            console.log(val)
-          }
-          instrument[f] = val;
-        }
+    for (var f of obj) {
+      var val: string = update.getValue(f);
+      var chgp = update.getValue("CHGP");
+      if(parseFloat(chgp) < 0){
+        this.stockInfo["chgColour"] = 'danger'
+      }
+      if(parseFloat(chgp) > 0){
+        this.stockInfo["chgColour"] = 'success'
+      }
+      if(parseFloat(chgp) === 0){
+        this.stockInfo["chgColour"] = 'warning'
+      }
+      if((val !== ' ') && (val !== null) && parseFloat(val)){
+        this.stockInfo[f] = val;
       }
     }
-    getStockItem(update, obj.stackInfo[itemPos-1]);
   }
 
   ngOnInit() {
-    this.store.select(getMarketData).subscribe(
+    this.store.select(getStockInfo).subscribe(
       (res) => {
         var siPesk = this.lss.get('siPesk');
         var siSymbol = this.lss.get('siSymbol');
@@ -55,7 +56,9 @@ export class StockInfoComponent {
         this.lss.set('stockInfo', stockInfo);
         this.stockInfo = stockInfo;
         this.symbol = siSymbol;
-        this.lsService.subscribeStockInfo(this);
+        if(siPesk){
+          this.lsService.subscribeStockInfo(this);
+        }
       }
     )
     if (this.lss.get('stockInfo') === null || this.stockInfo === undefined) {
@@ -68,8 +71,10 @@ export class StockInfoComponent {
       this.lss.set('stockInfo', stockInfo);
       this.stockInfo = stockInfo;
       this.symbol = siSymbol;
+      if(siPesk){
+        this.lsService.subscribeStockInfo(this);
+      }
     }
-    this.subscribeData();
   }
 
   ngOnChanges() {}
@@ -199,49 +204,49 @@ function instrument(pesk: any, symbol: any, name: any) {
 
     //Depth
     BS1: '0',
-    B1: '0',
-    A1: '0',
+    BP1: '0',
+    AP1: '0',
     AS1: '0',
     BS2: '0',
-    B2: '0',
-    A2: '0',
+    BP2: '0',
+    AP2: '0',
     AS2: '0',
     BS3: '0',
-    B3: '0',
-    A3: '0',
+    BP3: '0',
+    AP3: '0',
     AS3: '0',
 
     // Last 5 Trades
     LTP1: '0',
     LTS1: '0',
     LTT1: '0',
-    Chg1: '0',
+    CHG1: '0',
     LTP2: '0',
     LTS2: '0',
     LTT2: '0',
-    Chg2: '0',
+    CHG2: '0',
     LTP3: '0',
     LTS3: '0',
     LTT3: '0',
-    Chg3: '0',
+    CHG3: '0',
     LTP4: '0',
     LTS4: '0',
     LTT4: '0',
-    Chg4: '0',
+    CHG4: '0',
     LTP5: '0',
     LTS5: '0',
     LTT5: '0',
-    Chg5: '0',
+    CHG5: '0',
 
-    Chg: '0',
-    ChgP: '0',
+    CHG: '0',
+    CHGP: '0',
     Cls: '0',
     L: '0',
     H: '0',
-    TVol: '0',
-    TVal: '0',
-    NTrd: '0',
-    St: '0',
+    TVOL: '0',
+    TVAL: '0',
+    NTRD: '0',
+    ST: '0',
 
     //chgColour is used for changing the row's css class
     //('warning', 'danger', 'success') - (yellow, red, green)

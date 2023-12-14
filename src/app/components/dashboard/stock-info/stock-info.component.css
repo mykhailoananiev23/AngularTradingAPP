@@ -1,0 +1,11 @@
+.warning {
+    background-color: #f89406 !important;
+}
+
+.success {
+    background-color: green !important;
+}
+
+.danger {
+    background-color: red !important;
+}

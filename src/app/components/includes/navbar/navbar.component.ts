@@ -18,6 +18,9 @@ export class NavbarComponent {
   isAuth: any;
   isfeed: any;
 
+  progress: any;
+  isLoading: any;
+
   constructor(
     private router: Router,
     private store: Store,
@@ -25,7 +28,9 @@ export class NavbarComponent {
     private apiService: NTVoyagerApiWtp,
     private lsService: LstreamerService
   ) {
-    this.isAuth = this.lss.get('isAuth')
+    this.isAuth = this.lss.get('isAuth');
+    this.isLoading = false;
+    this.progress = 40
   }
 
   async getUsername() {}

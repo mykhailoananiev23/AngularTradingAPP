@@ -1,3 +1,3 @@
 export interface FeedState{
-    status: boolean
+    status: number
 }
